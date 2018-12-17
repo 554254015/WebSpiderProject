@@ -1,0 +1,24 @@
+# 由于Python原生支持sqlite3数据库，并且此数据库小巧，功能十分强大。
+# 用工具软件SQLiteSpy可打开db文件
+
+import sqlite3 as base
+db = base.connect('F:/PythonTest/BigData/test.db')     
+                                    #数据库文件存在时，直接连接；不存在时，则创建相应数据库文件。
+                                    #此时当前目录下可以找到对应的数据库文件
+# 获取游标
+sur = db.cursor()
+# 建表
+sur.execute("""create table info(
+id text,
+name text,
+score text)""")
+
+db.commit()
+# 添加数据
+sur.execute("insert into info values ('1', 'xiaohua', '23')")
+sur.execute("insert into info values ('2', 'xiaoming', '67')")
+sur.execute("insert into info values ('3', 'xiaogang', '89')")
+
+db.commit()
+sur.close()
+db.close()
