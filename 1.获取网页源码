@@ -1,0 +1,21 @@
+# 通过python内置的urllib.request模块可以很轻松地获得网页的字节码，通过对字节码的解码就可以获取网页的源码字符串。
+
+from urllib import request
+fp = request.urlopen('http://www.nuc.edu.cn')
+content = fp.read()
+fp.close()
+type(content)
+
+html = content.decode()
+html
+
+import chardet
+det = chardet.detect(content)
+det
+
+if det['confidence'] > 0.8:      # 当设置confidence>0.8时，认为它的判断正确
+    html = content.decode(det['encoding'])
+    print(det['encoding'])
+else:
+    html = content.decode('gbk')
+    print(det['encoding'])
