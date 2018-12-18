@@ -1,0 +1,55 @@
+# 对“豆瓣电影TOP250”网页（https://movie.douban.com/top250）进行数据爬取
+
+# 第一步：引入包
+from urllib import request
+from chardet import detect
+from bs4 import BeautifulSoup
+import re
+
+# 第二步：获取网页源码，生成soup对象。
+def getSoup(url):
+    """获取源码"""
+    with request.urlopen(url) as fp:
+        byt = fp.read()
+        det = detect(byt)
+        return BeautifulSoup(byt.decode(det['encoding']), 'lxml')
+    
+# 第三步：解析数据
+def getData(soup):
+    """获取数据"""
+    data = []
+    ol = soup.find('ol', attrs = {'class': 'grid_view'})
+    for li in ol.findAll('li'):
+        tep = []
+        titles = []
+        for span in li.findAll('span'):
+            if span.has_attr('class'):
+                if span.attrs['class'][0] == 'title':
+                    titles.append(span.string.strip())
+                elif span.attrs['class'][0] == 'rating_num':
+                    tep.append(span.string.strip())
+                elif span.attrs['class'][0] == 'inq':
+                    tep.append(span.string.strip())
+        tep.insert(0, titles)
+        data.append(tep)
+    return data
+
+# 第四步：获取下一页链接
+def nextUrl(soup):
+    """获取下一页链接后缀"""
+    a = soup.find('a', text = re.compile("^后页"))
+    if a:
+        return a.attrs['href']
+    else:
+        return None
+    
+# 第五步：组织代码结构开始爬行
+if __name__ == '__main__':
+    url = "https://movie.douban.com/top250"
+    soup = getSoup(url)
+    print(getData(soup))
+    nt = nextUrl(soup)
+    while nt:
+        soup = getSoup(url + nt)
+        print(getData(soup))
+        nt = nextUrl(soup)
