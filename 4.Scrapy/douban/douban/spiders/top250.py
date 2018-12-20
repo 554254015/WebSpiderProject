@@ -36,7 +36,6 @@ class Top250Spider(scrapy.Spider):
             item['fen'] = tep[1]
             item['words'] = tep[2]
             yield item
-#            print(item)
         a = soup.find('a', text = re.compile("^后页"))
         if a:
             yield scrapy.Request("http://movie.douban.com/top250" + a.attrs['href'], callback = self.parse)
