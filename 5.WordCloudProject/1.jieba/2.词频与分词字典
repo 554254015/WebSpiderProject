@@ -1,0 +1,20 @@
+# -*- coding: utf-8 -*-
+
+
+import jieba
+from collections import Counter
+
+content = open(r'F:\PythonTest\BigData\pachong.txt', encoding = 'utf-8').read()
+Counter(content).most_common(10)   # 取出现频率前十的
+
+# 对长度小于等于2的词进行过滤
+con_words = [x for x in jieba.cut(content) if len(x) >= 2]
+Counter(con_words).most_common(10)   #取出现频率前十的
+
+
+txt = '欧阳建国是创新办主任也是欢聚时代公司云计算方面的专家'
+print(','.join(jieba.cut(txt)))
+
+# 使用用户字典（user_dict)分词
+jieba.load_userdict('user_dict.txt')
+print(','.join(jieba.cut(txt)))
