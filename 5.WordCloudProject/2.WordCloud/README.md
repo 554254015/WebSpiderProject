@@ -1,5 +1,6 @@
+# wordcloud
 wordcloud包的基本用法如下：
-wordcloud.WordCloud(font_path = None,
+  wordcloud.WordCloud(font_path = None,
                     width = 400,
                     height = 200,
                     margin = 2,
