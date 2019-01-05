@@ -1,6 +1,6 @@
 # wordcloud
 wordcloud包的基本用法如下：</br>
-<p>wordcloud.WordCloud(font_path = None,
+wordcloud.WordCloud(font_path = None,
                     width = 400,
                     height = 200,
                     margin = 2,
@@ -22,7 +22,7 @@ wordcloud包的基本用法如下：</br>
                     collocations = True,
                     colormap = None,
                     normalize_plurals = True)
-</p>
+
 这是wordcloud的所有参数格式，下面具体介绍各个参数。</br>
 <b>normalize_plurals</b>：是否溢出单词末尾的's'，布尔型，默认为TRUE。</br>
 <b>margin</b>：画布偏移，词语边缘距离，默认2像素。</br>
