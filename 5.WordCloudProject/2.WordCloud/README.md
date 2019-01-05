@@ -48,7 +48,7 @@ wordcloud包的基本用法如下：</br>
 <b>regexp</b>：数据类型为string or None（optional），使用正则表达式分隔输入的文本。</br>
 <b>collocations</b>：数据类型为bool，default=True，是否包括两个词的搭配。</br>
 <b>colormap</b>：数据类型为string or matplotlib colormap，default = "viridis"，给每个单词随机分配颜色吗，若指定color_func,则忽略该方法。</br>
-
+</br>
 关于词云的方法有：</br>
 generate（text）  //根据文本生成词云</br>
 fit_words(frequencies)  //根据词频生成词云</br>
