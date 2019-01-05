@@ -1,3 +1,4 @@
+# jieba（结巴）
 1、cut用法
 jieba.cut方法的命令格式如下：
     jieba.cut(s, cut_all=True)
