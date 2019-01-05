@@ -1,6 +1,6 @@
 # wordcloud
 wordcloud包的基本用法如下：</br>
-<span>wordcloud.WordCloud(font_path = None,
+<p>wordcloud.WordCloud(font_path = None,
                     width = 400,
                     height = 200,
                     margin = 2,
@@ -22,7 +22,7 @@ wordcloud包的基本用法如下：</br>
                     collocations = True,
                     colormap = None,
                     normalize_plurals = True)
-</span>
+</p>
 这是wordcloud的所有参数格式，下面具体介绍各个参数。</br>
 <b>normalize_plurals</b>：是否溢出单词末尾的's'，布尔型，默认为TRUE。</br>
 <b>margin</b>：画布偏移，词语边缘距离，默认2像素。</br>
@@ -40,7 +40,7 @@ wordcloud包的基本用法如下：</br>
 <b>font_step</b>：数据类型为int（default = 1），字体步长。如果步长大于1，会加快运算但是可能导致结果出现较大的误差。</br>
 <b>max_words</b>：数据类型为number（default = 200），要显示的词的最大个数。</br>
 <b>stopwords</b>：数据类型为strings or None，设置需要屏蔽的词，如果为空，则使用内置的STOPWORDS。</br>
-<b>background_color</b>：数据类型为color value（default = "black"），背景颜色，如：background_color = 'white'，背景颜色为白色。</br><b>
+<b>background_color</b>：数据类型为color value（default = "black"），背景颜色，如：background_color = 'white'，背景颜色为白色。</br>
 <b>max_font_size</b>：数据类型为int or None（default = None），显示的最大的字体大小。</br>
 <b>mode</b>：数据类型为string（default = "RGB"），当参数为RGBA并且background_color不为空时，背景为透明。</br>
 <b>relative_scaling</b>：数据类型为float（fault = .5），词频和字体大小的关联性。</br>
