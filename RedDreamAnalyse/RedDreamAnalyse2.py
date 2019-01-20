@@ -138,3 +138,156 @@ plt.xlabel("章节段数", FontProperties = font)
 plt.ylabel("章节字数", FontProperties = font)
 plt.title("《红楼梦》——t-SNE", FontProperties = font)
 plt.show()
+
+
+# LDA主题模型
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.decomposition import LatentDirichletAllocation
+# 准备工作，将分词后的结果整理成CountVectorizer()可应用的形式
+# 将所有分词后的结果使用空格连接为字符串，并组成列表，每一段为列表中的一个元素
+articals = []
+for cutword in Red_df.cutword:
+    cutword = [s for s in cutword if len(s) < 5]
+    cutword = " ".join(cutword)
+    articals.append(cutword)
+# max_features参数根据出现的频率排序，只取指定的数目
+tf_vectorizer = CountVectorizer(max_features = 10000)
+tf = tf_vectorizer.fit_transform(articals)
+
+# 查看结果
+print(tf_vectorizer.get_feature_names()[400:420])
+tf.toarray()[20: 50, 200: 800]
+
+# 主题数目
+n_topics = 3
+lda = LatentDirichletAllocation(n_topics = n_topics,
+                              max_iter = 25,
+                              learning_method = 'online',
+                              learning_offset = 50,
+                              random_state = 0)
+# 模型应用于数据
+lda.fit(tf)
+# 等到每个章节属于某个主题的可能性
+chapter_top = pd.DataFrame(lda.transform(tf),
+                          index = Red_df.Chapter,
+                          columns = np.arange(n_topics) + 1)
+chapter_top
+# 每一行的和
+chapter_top.apply(sum, axis = 1).values
+# 查看每一行的最大值
+chapter_top.apply(max, axis = 1).values
+# 找到大于相应值的索引
+np.where(chapter_top >= np.min(chapter_top.apply(max, axis = 1).values))
+
+# 可视化主题，主成分分析可视化LDA
+from pylab import *
+mpl.rcParams['font.sans-serif'] = ['SimHei']     # 指定默认字体
+mpl.rcParams['axes.unicode_minus'] = False      # 解决保存图像负号‘-’显示为方块的问题
+
+n_top_words = 40
+tf_feature_names = tf_vectorizer.get_feature_names()
+for topic_id, topic in enumerate(lda.components_):
+    topword = pd.DataFrame(
+        {"word": [tf_feature_names[i] for i in topic.argsort()[: -n_top_words - 1 : -1]],
+        "componets": topic[topic.argsort()[: -n_top_words - 1 : -1]]})
+    topword.sort_values(by = "componets").plot(kind = "barh",
+                                              x = "word",
+                                              y = "componets",
+                                              figsize = (6, 8),
+                                              legend = False)
+    plt.yticks(FontProperties = font, size = 10)
+    plt.ylabel("")
+    plt.xlabel("")
+    plt.title("Topic %d"%(topic_id + 1))
+    plt.show()
+    
+# 查看每个主题的关键词
+def print_top_words(model, feature_names, n_top_words):
+    for topic_id, topic in enumerate(model.components_):
+        print('\nTopic Nr.%d:' % int(topic_id + 1))
+        print(''.join([feature_names[i] + ' ' + str(round(topic[i], 2))
+                      + '|' for i in topic.argsort()[: -n_top_words - 1 : -1]]))
+n_top_words = 10
+tf_feature_names = tf_vectorizer.get_feature_names()
+print_top_words(lda, tf_feature_names, n_top_words)
+
+
+# 人物社交网络分析
+# 两种方式：1、如果两个人名同时出现在同一段落，则其联系+1
+#           2、如果两个人名同时出现在同一章节，则其联系+1
+# 加载绘制社交网络图的包
+import networkx as nx
+# 读取数据
+Red_df = pd.read_csv(r'F:\PythonTest\BigData\2018book\red_social_net_weight.csv')
+Red_df.head()
+
+# 计算其中的一种权重
+Red_df["weight"] = Red_df.chapweight / 120
+Red_df2 = Red_df[Red_df.weight > 0.025].reset_index(drop = True)
+plt.figure(figsize = (12, 12))
+# 生成社交网络图
+G = nx.Graph()
+# 添加边
+for ii in Red_df2.index:
+    G.add_edge(Red_df2.First[ii], Red_df2.Second[ii], weight = Red_df2.weight[ii])
+# 定义3种边
+elarge = [(u, v) for (u, v, d) in G.edges(data = True) if d['weight'] > 0.2]
+emidle = [(u, v) for (u, v, d) in G.edges(data = True) if (d['weight'] > 0.1) & (d['weight'] <= 0.2)]
+esmall = [(u, v) for (u, v, d) in G.edges(data = True) if d['weight'] < 0.1]
+# 图的布局
+pos = nx.spring_layout(G)  #positions for all nodes
+# nodes
+nx.draw_networkx_nodes(G, pos, alpha = 0.6, node_size = 350)
+# edges
+nx.draw_networkx_edges(G, pos, edgelist = elarge,
+                      width = 2, alpha = 0.9, edge_color = 'g')
+nx.draw_networkx_edges(G, pos, edgelist = emidle,
+                      width = 1.5, alpha = 0.6, edge_color = 'y')
+nx.draw_networkx_edges(G, pos, edgelist = esmall,
+                      width = 1, alpha = 0.3, edge_color = 'b', style = 'dashed')
+# labels
+nx.draw_networkx_labels(G, pos, font_size = 10)
+plt.axis('off')
+plt.title("《红楼梦》社交网络")
+plt.show()
+
+# 计算每个节点的度
+Gdegree = nx.degree(G)
+Gdegree = dict(Gdegree)
+Gdegree = pd.DataFrame({"name": list(Gdegree.keys()),
+                       "degree": list(Gdegree.values())})
+Gdegree.sort_values(by = "degree", ascending = False).plot(x = "name",
+                                                          y = "degree",
+                                                          kind = "bar",
+                                                          figsize = (12, 6),
+                                                          legend = False)
+plt.xticks(FontProperties = font, size = 5)
+plt.ylabel("degree")
+plt.show()
+
+plt.figure(figsize = (12, 12))
+# 生成社交网络图
+G = nx.Graph()
+# 添加边
+for ii in Red_df2.index:
+    G.add_edge(Red_df2.First[ii], Red_df2.Second[ii], weight = Red_df2.weight[ii])
+# 定义两种边
+elarge = [(u, v) for (u, v, d) in G.edges(data = True) if d['weight'] > 0.3]
+emidle = [(u, v) for (u, v, d) in G.edges(data = True) if (d['weight'] > 0.2) & (d['weight'] <= 0.3)]
+esmall = [(u, v) for (u, v, d) in G.edges(data = True) if d['weight'] <= 0.2]
+# 图的布局
+pos = nx.circular_layout(G) # positions for all nodes
+# nodes 根据节点的入度和出度来设置节点的大小
+nx.draw_networkx_nodes(G, pos, alpha = 0.6, node_size = 20 + Gdegree.degree * 15)
+# edges
+nx.draw_networkx_edges(G, pos, edgelist = elarge,
+                      width = 2, alpha = 0.9, edge_color = 'g')
+nx.draw_networkx_edges(G, pos, edgelist = emidle,
+                      width = 1.5, alpha = 0.6, edge_color = 'y')
+nx.draw_networkx_edges(G, pos, edgelist = esmall,
+                      width = 1, alpha = 0.3, edge_color = 'b', style = 'dashed')
+# labels
+nx.draw_networkx_labels(G, pos, font_size = 10) # font_size = 10, 即设置图中字体的大小
+plt.axis('off')
+plt.title("《红楼梦》社交网络")
+plt.show()
